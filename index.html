@@ -125,7 +125,6 @@
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    // ✅ FIXED: Added robust checks for data existence
                     companyData = (result.data && result.data.companies) ? result.data.companies : {};
                     jobTitles = (result.data && result.data.jobTitles) ? result.data.jobTitles : [];
                     submitters = (result.data && result.data.submitters) ? result.data.submitters : [];
@@ -147,23 +146,27 @@
         function populateSubmitters(list) {
             const select = document.getElementById('submitter');
             select.innerHTML = '<option value="" disabled selected>-- Select Submitter --</option>';
-            list.forEach(sub => {
-                const opt = document.createElement('option');
-                opt.value = sub.email;
-                opt.textContent = sub.name;
-                select.appendChild(opt);
-            });
+            if (Array.isArray(list)) {
+                list.forEach(sub => {
+                    const opt = document.createElement('option');
+                    opt.value = sub.email;
+                    opt.textContent = sub.name;
+                    select.appendChild(opt);
+                });
+            }
         }
 
         function populateCompanies(data) {
             const select = document.getElementById('companySelect');
             select.innerHTML = '<option value="">-- Select Existing Company --</option>';
-            Object.keys(data).sort().forEach(company => {
-                const opt = document.createElement('option');
-                opt.value = company;
-                opt.textContent = company;
-                select.appendChild(opt);
-            });
+            if (typeof data === 'object' && data !== null) {
+                Object.keys(data).sort().forEach(company => {
+                    const opt = document.createElement('option');
+                    opt.value = company;
+                    opt.textContent = company;
+                    select.appendChild(opt);
+                });
+            }
         }
 
         function addContact() {
@@ -171,12 +174,14 @@
             const clone = template.content.cloneNode(true);
             const contactEntry = clone.querySelector('.contact-entry');
             const titleSelect = contactEntry.querySelector('.job-title-select');
-            jobTitles.forEach(title => {
-                const opt = document.createElement('option');
-                opt.value = title;
-                opt.textContent = title;
-                titleSelect.appendChild(opt);
-            });
+            if (Array.isArray(jobTitles)) {
+                jobTitles.forEach(title => {
+                    const opt = document.createElement('option');
+                    opt.value = title;
+                    opt.textContent = title;
+                    titleSelect.appendChild(opt);
+                });
+            }
             contactEntry.querySelector('.remove-contact-btn').addEventListener('click', () => contactEntry.remove());
             contactEntry.querySelector('.contact-name-select').addEventListener('change', (e) => populateContactFields(e.target));
             contactEntry.querySelector('.add-phone-btn').addEventListener('click', (e) => addSubInput(e.target, 'tel'));
@@ -204,12 +209,14 @@
             const companyName = document.getElementById('companySelect').value;
             const contactsForCompany = companyData[companyName] || [];
             const contactSelect = container.querySelector('.contact-name-select');
-            contactsForCompany.forEach(contact => {
-                const opt = document.createElement('option');
-                opt.value = contact.name;
-                opt.textContent = contact.name;
-                contactSelect.appendChild(opt);
-            });
+            if (Array.isArray(contactsForCompany)) {
+                contactsForCompany.forEach(contact => {
+                    const opt = document.createElement('option');
+                    opt.value = contact.name;
+                    opt.textContent = contact.name;
+                    contactSelect.appendChild(opt);
+                });
+            }
         }
 
         function populateContactFields(selectElement) {
@@ -220,7 +227,7 @@
             if (!contact) return;
             const titleSelect = contactEntry.querySelector('.job-title-select');
             const titleInput = contactEntry.querySelector('.job-title-new');
-            if (jobTitles.includes(contact.title)) {
+            if (Array.isArray(jobTitles) && jobTitles.includes(contact.title)) {
                 titleSelect.value = contact.title;
                 titleInput.value = '';
             } else {
