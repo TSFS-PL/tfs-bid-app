@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- Force new deployment -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -112,27 +111,30 @@
         </div>
     </template>
     <script>
-        // ✅ PASTE YOUR WEB APP URL HERE
-        const APPS_SCRIPT_URL = 'YOUR_WEB_APP_URL_HERE';
+        // ✅ YOUR WEB APP URL IS NOW INCLUDED
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxlkupGYZPqoVrHP6EQbZsF8fOAuZyfH4_31mzIeVdZtpEFZXEir2Ygq4QXaOBI5fTy/exec';
 
         let companyData = {}, jobTitles = [], submitters = [];
 
         document.addEventListener("DOMContentLoaded", () => {
             setLoadingState(true);
-            fetch(`${APPS_SCRIPT_URL}?action=getInitialData`)
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        companyData = result.data.companies || {};
-                        jobTitles = result.data.jobTitles || [];
-                        submitters = result.data.submitters || [];
-                        populateSubmitters(submitters);
-                        populateCompanies(companyData);
-                        addContact();
-                    } else { throw new Error(result.message); }
-                })
-                .catch(showError)
-                .finally(() => setLoadingState(false));
+            fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'getInitialData' })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    companyData = result.data.companies || {};
+                    jobTitles = result.data.jobTitles || [];
+                    submitters = result.data.submitters || [];
+                    populateSubmitters(submitters);
+                    populateCompanies(companyData);
+                    addContact();
+                } else { throw new Error(result.message); }
+            })
+            .catch(showError)
+            .finally(() => setLoadingState(false));
 
             document.getElementById('submissionForm').addEventListener('submit', handleSubmit);
             document.getElementById('isRevisionCheck').addEventListener('change', toggleRevisionNumber);
@@ -271,12 +273,15 @@
                 }
                 fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors', // Important for Apps Script web apps
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify({ action: 'submitForm', formData: formData })
                 })
-                .then(response => {
-                    // no-cors mode means we can't read the response, but we assume it's ok
-                    showSuccess("Submission sent successfully! You will receive an email shortly.");
+                .then(res => res.json())
+                .then(result => {
+                    if (result.success) {
+                        showSuccess(result.message);
+                    } else {
+                        throw new Error(result.message);
+                    }
                 })
                 .catch(showError);
             }).catch(showError);
