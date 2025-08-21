@@ -1,6 +1,0 @@
-const { google } = require('googleapis');
-const stream = require('stream');
-// ... (This is the full backend code from the previous Netlify guide) ...
-exports.handler = async (event) => {
-    // ...
-};

@@ -1,7 +1,0 @@
-{
-  "name": "tfs-bid-app-backend",
-  "version": "1.0.0",
-  "dependencies": {
-    "googleapis": "^100.0.0"
-  }
-}
