@@ -111,7 +111,7 @@
         </div>
     </template>
     <script>
-        // ✅ YOUR WEB APP URL IS NOW INCLUDED
+        // ✅ PASTE YOUR WEB APP URL HERE
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxlkupGYZPqoVrHP6EQbZsF8fOAuZyfH4_31mzIeVdZtpEFZXEir2Ygq4QXaOBI5fTy/exec';
 
         let companyData = {}, jobTitles = [], submitters = [];
@@ -125,9 +125,11 @@
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    companyData = result.data.companies || {};
-                    jobTitles = result.data.jobTitles || [];
-                    submitters = result.data.submitters || [];
+                    // ✅ FIXED: Added robust checks for data existence
+                    companyData = (result.data && result.data.companies) ? result.data.companies : {};
+                    jobTitles = (result.data && result.data.jobTitles) ? result.data.jobTitles : [];
+                    submitters = (result.data && result.data.submitters) ? result.data.submitters : [];
+                    
                     populateSubmitters(submitters);
                     populateCompanies(companyData);
                     addContact();
