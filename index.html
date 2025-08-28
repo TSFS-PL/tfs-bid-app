@@ -124,15 +124,20 @@
             })
             .then(response => response.json())
             .then(result => {
-                if (result.success) {
-                    companyData = (result.data && result.data.companies) ? result.data.companies : {};
-                    jobTitles = (result.data && result.data.jobTitles) ? result.data.jobTitles : [];
-                    submitters = (result.data && result.data.submitters) ? result.data.submitters : [];
+                // ✅ ADDED: Detailed logging of the received data
+                console.log("Received data from Apps Script:", result);
+
+                if (result.success && result.data) {
+                    companyData = result.data.companies || {};
+                    jobTitles = result.data.jobTitles || [];
+                    submitters = result.data.submitters || [];
                     
                     populateSubmitters(submitters);
                     populateCompanies(companyData);
                     addContact();
-                } else { throw new Error(result.message); }
+                } else { 
+                    throw new Error(result.message || "Received invalid data structure from server."); 
+                }
             })
             .catch(showError)
             .finally(() => setLoadingState(false));
